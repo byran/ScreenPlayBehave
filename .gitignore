@@ -1,0 +1,13 @@
+# Environments
+/.venv/
+
+# Python cache
+__pycache__/
+
+# Python package build directories
+*.egg-info/
+
+# Coverage
+/.coverage
+/coverage.txt
+/coverage_html/

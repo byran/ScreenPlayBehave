@@ -1,0 +1,104 @@
+{% set state = namespace() -%}
+{% set state.number_of_files = 0 -%}
+{% set state.number_of_functions = 0 -%}
+
+{% set state.total_complexity = 0 -%}
+{% set state.max_complexity = 0 -%}
+
+{% set state.total_loc = 0 -%}
+{% set state.max_loc = 0 -%}
+
+{% set state.total_maintainability = 0 -%}
+{% set state.min_maintainability = 100 -%}
+
+{% for file in mi -%}
+
+    {% set state.number_of_files = state.number_of_files + 1 -%}
+    {% set state.total_loc = state.total_loc + raw[file].loc -%}
+
+    {% if raw[file].loc|int > state.max_loc -%}
+        {% set state.max_loc = raw[file].loc -%}
+    {% endif -%}
+
+    {%- for complex in cc[file] -%}
+        {% set state.number_of_functions = state.number_of_functions + 1 -%}
+        {% set state.total_complexity = state.total_complexity + complex.complexity -%}
+
+        {% if state.max_complexity < complex.complexity -%}
+            {% set state.max_complexity = complex.complexity -%}
+        {% endif -%}
+    {% endfor -%}
+
+    {% set state.total_maintainability = state.total_maintainability + mi[file].mi -%}
+
+    {% if mi[file].mi < state.min_maintainability -%}
+        {% set state.min_maintainability = mi[file].mi -%}
+    {% endif -%}
+{%- endfor -%}
+
+Code metrics
+============
+
+Summary
+-------
+
+.. list-table::
+    :widths: auto
+    :header-rows: 1
+
+    * - metric
+      - value
+    * - average complexity
+      - {{ (state.total_complexity / state.number_of_functions)|round(2) }}
+    * - max complexity
+      - {{ state.max_complexity }}
+    * - average lines of code
+      - {{ (state.total_loc / state.number_of_files)|round(2) }}
+    * - max lines of code
+      - {{ state.max_loc }}
+    * - average maintainability
+      - {{ (state.total_maintainability / state.number_of_files)|round(2) }}
+    * - min maintainability
+      - {{ state.min_maintainability|round(2) }}
+
+
+Individual file code metrics
+----------------------------
+{% for file in mi %}
+{{ file }}
+{{ '^' * file|length }}
+
+| Lines of code: {{ raw[file].loc }}
+| Maintainability: {{ mi[file].mi|round(2) }}
+| Rank: {{ mi[file].rank }}
+
+{%- if non_class_complexity(cc[file]) > 0 %}
+
+.. list-table::
+    :widths: auto
+    :header-rows: 1
+
+    * - Type
+      - Name
+      - Complexity
+      - Rank
+
+{%- for complex in cc[file] -%}
+
+{% if complex.type != 'class' %}
+    * - {{ complex.type }}
+
+{%- if complex.type == 'function' %}
+      - {{ complex.name }}
+{%- endif -%}
+
+{%- if complex.type == 'method' %}
+      - {{complex.classname}}.{{ complex.name }}
+{%- endif %}
+      - {{ complex.complexity }}
+      - {{ complex.rank }}
+{%- endif %}
+
+{%- endfor %}
+{%- endif %}
+{% endfor %}

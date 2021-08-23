@@ -11,6 +11,12 @@ setup(
     packages=[
         'screenplay_behave'
     ],
+    entry_points={
+        "console_scripts": [
+            "screenplay2sphinx = screenplay_behave.create_sphinx_feature_file_page:main"
+        ]
+    },
+    include_package_data=True,
     zip_safe=False,
     install_requires=[
         'behave >= 1.2.6',

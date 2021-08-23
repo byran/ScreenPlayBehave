@@ -1,1 +1,1 @@
-screenplay_behave/feature.template
+include screenplay_behave/feature.template

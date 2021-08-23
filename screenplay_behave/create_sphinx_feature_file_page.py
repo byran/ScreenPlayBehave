@@ -3,6 +3,7 @@ import sys
 import json
 import pathlib
 from os import path
+from glob import glob
 from .collecting_formatter import CollectedFeature, CollectedStep
 from jinja2 import Template
 
@@ -74,6 +75,28 @@ def main(args=None):
 
     with open(file_name, 'wt') as file:
         file.write(Template(template).render(**context))
+
+
+def process_files_in_current_directory():
+    files = glob(path.join(path.curdir, '*.json'))
+    raw_template = read_template()
+    template = Template(raw_template)
+
+    for file in files:
+        print(u'Converting {f}'.format(f=file))
+        feature = read_feature(file)
+
+        context = {
+            "feature": feature,
+            "status_to_style": status_to_style,
+            "screenshots_from_step": screenshots_from_step
+        }
+
+        (file_name, _) = path.splitext(file)
+        file_name += '.rst'
+
+        with open(file_name, 'wt') as file:
+            file.write(template.render(**context))
 
 
 if __name__ == "__main__":

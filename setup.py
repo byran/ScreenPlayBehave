@@ -13,7 +13,8 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "screenplay2sphinx = screenplay_behave.create_sphinx_feature_file_page:main"
+            "screenplay2sphinx = screenplay_behave.create_sphinx_feature_file_page:main",
+            "screenplay2sphinx-all = screenplay_behave.create_sphinx_feature_file_page:process_files_in_current_directory"
         ]
     },
     include_package_data=True,

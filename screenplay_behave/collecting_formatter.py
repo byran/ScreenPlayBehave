@@ -34,20 +34,13 @@ class CollectedScenario:
         return cls(steps=steps, **data)
 
 
-class CollectedFeature:
-    def __init__(self, file_name: str, name: str, description: List[str],
-                 tags: List[str], start_time: float = time.time(),
-                 run_time: float = 0, scenarios: List[CollectedScenario] = []):
-        self.file_name = file_name
+class CollectedRule:
+    def __init__(self, name: str, description: List[str],
+                 tags: List[str], scenarios: List[CollectedScenario] = []):
         self.name = name
         self.description: List[str] = description
         self.tags: List[str] = tags
-        self.start_time = start_time
-        self.run_time = run_time
         self.scenarios: List[CollectedScenario] = scenarios
-
-    def finished(self):
-        self.run_time = time.time() - self.start_time
 
     @classmethod
     def from_json(cls, data):
@@ -56,11 +49,38 @@ class CollectedFeature:
         return cls(scenarios=scenarios, **data)
 
 
+class CollectedFeature:
+    def __init__(self, file_name: str, name: str, description: List[str],
+                 tags: List[str], start_time: float = time.time(),
+                 run_time: float = 0, scenarios: List[CollectedScenario] = [],
+                 rules: List[CollectedRule] = []):
+        self.file_name = file_name
+        self.name = name
+        self.description: List[str] = description
+        self.tags: List[str] = tags
+        self.start_time = start_time
+        self.run_time = run_time
+        self.scenarios: List[CollectedScenario] = scenarios
+        self.rules: List[CollectedRule] = rules
+
+    def finished(self):
+        self.run_time = time.time() - self.start_time
+
+    @classmethod
+    def from_json(cls, data):
+        scenarios = list(map(CollectedScenario.from_json, data['scenarios']))
+        data.pop('scenarios', None)
+        rules = list(map(CollectedRule.from_json, data['rules']))
+        data.pop('rules', None)
+        return cls(scenarios=scenarios, rules=rules, **data)
+
+
 class CollectingFormatter(Formatter):
     def __init__(self, stream_opener, config):
         super().__init__(stream_opener, config)
 
         self.currentFeature: CollectedFeature = None
+        self.currentRule: CollectedRule = None
         self.currentScenario: CollectedScenario = None
         self.currentStep: CollectedStep = None
 
@@ -79,9 +99,19 @@ class CollectingFormatter(Formatter):
     def feature(self, feature: Feature):
         self.currentFeature = CollectedFeature(feature.filename, feature.name, feature.description, feature.tags)
 
+    def rule(self, rule):
+        self.currentRule = CollectedRule(rule.name, rule.description, rule.tags)
+        self.currentFeature.rules.append(self.currentRule)
+
+    def background(self, background):
+        pass
+
     def scenario(self, scenario: Scenario):
         self.currentScenario = CollectedScenario(scenario.name, scenario.tags)
-        self.currentFeature.scenarios.append(self.currentScenario)
+        if self.currentRule is None:
+            self.currentFeature.scenarios.append(self.currentScenario)
+        else:
+            self.currentRule.scenarios.append(self.currentScenario)
 
         self.stepsToProcess = []
 
@@ -104,6 +134,3 @@ class CollectingFormatter(Formatter):
 
     def eof(self):
         self.currentFeature.finished()
-
-    def close(self):
-        pass

@@ -21,11 +21,12 @@ class CollectedStep:
 
 
 class CollectedScenario:
-    def __init__(self, name: str, tags: List[str], status: str = 'not run', steps: List[CollectedStep] = []):
+    def __init__(self, name: str, tags: List[str], status: str = 'not run',
+                 steps: List[CollectedStep] = None):
         self.name = name
         self.tags: List[str] = tags
         self.status = status
-        self.steps: List[CollectedStep] = steps
+        self.steps: List[CollectedStep] = [] if (steps is None) else steps
 
     @classmethod
     def from_json(cls, data):
@@ -36,11 +37,11 @@ class CollectedScenario:
 
 class CollectedRule:
     def __init__(self, name: str, description: List[str],
-                 tags: List[str], scenarios: List[CollectedScenario] = []):
+                 tags: List[str], scenarios: List[CollectedScenario] = None):
         self.name = name
         self.description: List[str] = description
         self.tags: List[str] = tags
-        self.scenarios: List[CollectedScenario] = scenarios
+        self.scenarios: List[CollectedScenario] = [] if (scenarios is None) else scenarios
 
     @classmethod
     def from_json(cls, data):
@@ -52,16 +53,16 @@ class CollectedRule:
 class CollectedFeature:
     def __init__(self, file_name: str, name: str, description: List[str],
                  tags: List[str], start_time: float = time.time(),
-                 run_time: float = 0, scenarios: List[CollectedScenario] = [],
-                 rules: List[CollectedRule] = []):
+                 run_time: float = 0, scenarios: List[CollectedScenario] = None,
+                 rules: List[CollectedRule] = None):
         self.file_name = file_name
         self.name = name
         self.description: List[str] = description
         self.tags: List[str] = tags
         self.start_time = start_time
         self.run_time = run_time
-        self.scenarios: List[CollectedScenario] = scenarios
-        self.rules: List[CollectedRule] = rules
+        self.scenarios: List[CollectedScenario] = [] if (scenarios is None) else scenarios
+        self.rules: List[CollectedRule] = [] if (rules is None) else rules
 
     def finished(self):
         self.run_time = time.time() - self.start_time

@@ -1,1 +1,2 @@
-include screenplay_behave/feature.template
+include screenplay_behave/feature.jinja2
+include screenplay_behave/scenario.jinja2

@@ -5,8 +5,12 @@ import pathlib
 from os import path
 from glob import glob
 from .collecting_formatter import CollectedFeature, CollectedStep
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 
+
+current_directory = pathlib.Path(__file__).parent.resolve()
+env = Environment(loader=FileSystemLoader(current_directory, followlinks=True))
+template = env.get_template('feature.jinja2')
 
 status_to_style_dict = {
     'not run': 'notrun',
@@ -34,16 +38,6 @@ def screenshots_from_step(step: CollectedStep):
     return screenshots
 
 
-def read_template():
-    template_path = path.join(pathlib.Path(__file__).parent.absolute(), 'feature.template')
-    if not path.exists(template_path):
-        print('Unable to find template\n')
-        exit(2)
-
-    with open(template_path) as file:
-        return file.read()
-
-
 def read_feature(feature_path):
     if not path.exists(feature_path):
         print('Unable to find feature file\n')
@@ -61,7 +55,6 @@ def main(args=None):
         print('Invalid command format, format is:\n {a[0]} <json feature result>\n'.format(a=args))
         exit(1)
 
-    template = read_template()
     feature = read_feature(args[1])
 
     context = {
@@ -74,13 +67,11 @@ def main(args=None):
     file_name += '.rst'
 
     with open(file_name, 'wt') as file:
-        file.write(Template(template).render(**context))
+        file.write(template.render(**context))
 
 
 def process_files_in_current_directory():
     files = glob(path.join(path.curdir, '*.json'))
-    raw_template = read_template()
-    template = Template(raw_template)
 
     for file in files:
         print(u'Converting {f}'.format(f=file))

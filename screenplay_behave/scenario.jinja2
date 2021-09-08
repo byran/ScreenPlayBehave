@@ -1,0 +1,21 @@
+{% if scenario.tags|length > 0 -%}
+:tags:`{{ '@' + ' @'.join(scenario.tags) }}`
+
+{% endif -%}
+
+Scenario: {{ scenario.name }}
+{{ '^' * (scenario.name|length + 11) }}
+
+.. list-table::
+    :widths: auto
+    :header-rows: 0
+{% for step in scenario.steps -%}
+{% set state.screenshots = screenshots_from_step(step) %}
+    * - {{ step.step_type }} {{ step.name }}
+      - :{{ status_to_style(step.status) }}:`{{ step.status }}`
+{%- if state.screenshots|length > 0 %}
+      -{% for screenshot in state.screenshots %} :download:`{{ screenshot }}`{% endfor %}
+{%- else %}
+      -
+{%- endif %}
+{%- endfor %}

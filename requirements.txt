@@ -7,5 +7,5 @@ Sphinx==3.0.4
 sphinx-rtd-theme==0.4.3
 coverage==5.1
 radon>=4.1.0
-git+git://github.com/byran/ScreenPlay@master#ogg=ScreenPlay
-git+git://github.com/byran/SphinxJinja2@master#ogg=SphinxJinja2
+git+https://github.com/byran/ScreenPlay@master#ogg=ScreenPlay
+git+https://github.com/byran/SphinxJinja2@master#ogg=SphinxJinja2

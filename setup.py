@@ -21,6 +21,6 @@ setup(
     zip_safe=False,
     install_requires=[
         'behave >= 1.2.6',
-        'ScreenPlay@git+git://github.com/byran/ScreenPlay@master#ogg=ScreenPlay'
+        'ScreenPlay@git+https://github.com/byran/ScreenPlay@master#ogg=ScreenPlay'
     ]
 )
